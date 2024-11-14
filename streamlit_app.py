@@ -90,52 +90,14 @@ else:
     st.image("assets/xmas.png", width=300)
     st.header("Alle Geschenkideen")
 
-    popover = st.popover("Filter nach")
-    filter_alma = popover.checkbox("Alma", True)
-    filter_antonia = popover.checkbox("Antonia", True)
-    filter_elva = popover.checkbox("Elva", True)
-    filter_elva = popover.checkbox("Eva", True)
-    filter_lotte = popover.checkbox("Lotte", True)
-    filter_marla = popover.checkbox("Marla", True)
-    filter_ol = popover.checkbox("Ol", True)
-    filter_sabine = popover.checkbox("Sabine", True)
-    filter_sandra = popover.checkbox("Sandra", True)
-    filter_smilla = popover.checkbox("Smilla", True)
-    filter_sophia = popover.checkbox("Sophia", True)
-    filter_susanne = popover.checkbox("Susanne", True)
-    filter_tho = popover.checkbox("Tho", True)
+    popover = st.popover("Filtern")
+    selected_name = popover.selectbox("Hier auswählen", ["alle"] + names)
 
-    filter_type = []
+    if selected_name == "alle":
+        ideas_df_filtered = ideas_df
+    else:
+        ideas_df_filtered = ideas_df[ideas_df['Beschenkte'] == selected_name]
 
-    if filter_alma:
-        filter_type.append('Alma')
-    if filter_antonia:
-        filter_type.append('Antonia')
-    if filter_elva:
-        filter_type.append('Elva')
-    if filter_elva:
-        filter_type.append('Eva')
-    if filter_lotte:
-        filter_type.append('Lotte')
-    if filter_marla:
-        filter_type.append('Marla')
-    if filter_ol:
-        filter_type.append('Ol')
-    if filter_sabine:
-        filter_type.append('Sabine')
-    if filter_sandra:
-        filter_type.append('Sandra')
-    if filter_smilla:
-        filter_type.append('Smilla')
-    if filter_sophia:
-        filter_type.append('Sophia')
-    if filter_susanne:
-        filter_type.append('Susanne')
-    if filter_tho:
-        filter_type.append('Tho')
-
-    ideas_df_filtered = ideas_df[ideas_df['Beschenkte'].isin(filter_type)]
-    
     st.dataframe(
         ideas_df_filtered,
         column_config={
