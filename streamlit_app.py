@@ -47,7 +47,7 @@ else:
     st.sidebar.header("Geschenkidee hinzufügen")
 
     # Dropdown for names
-    names = ["Sa", "Su", "San"]
+    names = ["Alma", "Antonia", "Elva", "Eva",  "Lotte", "Marla", "Ol", "Sabine", "Sandra", "Smilla", "Sophia", "Susanne", "Tho"]
     selected_name = st.sidebar.selectbox("Also wenn ich ... wäre,", names)
 
     # Text input for the idea
@@ -91,16 +91,46 @@ else:
     st.header("Alle Geschenkideen")
 
     popover = st.popover("Filter nach")
-    filter_sa = popover.checkbox("Sa", True)
-    filter_su = popover.checkbox("Su", True)
+    filter_alma = popover.checkbox("Alma", True)
+    filter_antonia = popover.checkbox("Antonia", True)
+    filter_elva = popover.checkbox("Elva", True)
+    filter_elva = popover.checkbox("Eva", True)
+    filter_lotte = popover.checkbox("Lotte", True)
+    filter_marla = popover.checkbox("Marla", True)
+    filter_ol = popover.checkbox("Ol", True)
+    filter_sabine = popover.checkbox("Sabine", True)
+    filter_sandra = popover.checkbox("Sandra", True)
+    filter_smilla = popover.checkbox("Smilla", True)
+    filter_sophia = popover.checkbox("Sophia", True)
+    filter_susanne = popover.checkbox("Susanne", True)
     filter_tho = popover.checkbox("Tho", True)
 
     filter_type = []
 
-    if filter_sa:
-        filter_type.append('Sa')
-    if filter_su:
-        filter_type.append('Su')
+    if filter_alma:
+        filter_type.append('Alma')
+    if filter_antonia:
+        filter_type.append('Antonia')
+    if filter_elva:
+        filter_type.append('Elva')
+    if filter_elva:
+        filter_type.append('Eva')
+    if filter_lotte:
+        filter_type.append('Lotte')
+    if filter_marla:
+        filter_type.append('Marla')
+    if filter_ol:
+        filter_type.append('Ol')
+    if filter_sabine:
+        filter_type.append('Sabine')
+    if filter_sandra:
+        filter_type.append('Sandra')
+    if filter_smilla:
+        filter_type.append('Smilla')
+    if filter_sophia:
+        filter_type.append('Sophia')
+    if filter_susanne:
+        filter_type.append('Susanne')
     if filter_tho:
         filter_type.append('Tho')
 
