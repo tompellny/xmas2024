@@ -4,7 +4,7 @@ from datetime import date
 import os
 
 # Define your password
-PASSWORD = "happy"
+PASSWORD = "lassmichrein"
 
 # Check if the user is already logged in
 if 'logged_in' not in st.session_state:
@@ -15,19 +15,15 @@ def authenticate(password):
     if password == PASSWORD:
         st.session_state.logged_in = True
     else:
-        st.error("Incorrect password")
+        st.error("Hoppla, Passwort falsch. Ab hier geht's für dich nicht weiter.")
 
 # Display the password input and authenticate if not logged in
 if not st.session_state.logged_in:
-    password = st.text_input("Enter Password", type="password")
-    if st.button("Login"):
+    password = st.text_input("Bitte Passwort eingeben:", type="password")
+    if st.button("Lass mich rein"):
         authenticate(password)
 
 else:
-    # Your main app code here
-    st.write("Welcome to the protected app!")
-    # Add more content that should be displayed after login
-
     # Set CSV file path
     CSV_PATH = "assets/ideas.csv"
 
@@ -36,7 +32,7 @@ else:
         if os.path.exists(CSV_PATH):
             return pd.read_csv(CSV_PATH, sep="|")
         else:
-            ideas_df = pd.DataFrame(columns=["Name", "Idea", "Date"])
+            ideas_df = pd.DataFrame(columns=["Beschenkte", "Geschenkidee", "Link", "Datum", "Favorit"])
             ideas_df.to_csv(CSV_PATH, sep="|", index=False)
             return ideas_df
 
@@ -48,40 +44,71 @@ else:
     ideas_df = load_ideas()
 
     # Sidebar for idea entry form
-    st.sidebar.header("Neue Geschenkidee")
+    st.sidebar.header("Geschenkidee hinzufügen")
 
     # Dropdown for names
     names = ["Sa", "Su", "San"]
-    selected_name = st.sidebar.selectbox("Wenn ich ... wäre,", names)
+    selected_name = st.sidebar.selectbox("Also wenn ich ... wäre,", names)
 
     # Text input for the idea
-    idea_text = st.sidebar.text_area("würde ich mir das wünschen:")
+    idea_text = st.sidebar.text_area("dann würde ich mir ... wünschen:")
+    idea_url = st.sidebar.text_input("Link:")
 
     # Submit button
-    if st.sidebar.button("Submit"):
+    if st.sidebar.button("Idee hinzufügen"):
         if idea_text.strip() != "":
             new_idea = {
-                "Name": selected_name,
-                "Idea": idea_text,
-                "Date": date.today().strftime("%Y-%m-%d")
+                "Beschenkte": selected_name,
+                "Geschenkidee": idea_text,
+                "Link": idea_url,
+                "Datum": date.today().strftime("%Y-%m-%d")
             }
             ideas_df = pd.concat([ideas_df, pd.DataFrame([new_idea])], ignore_index=True)
             save_ideas(ideas_df)
-            st.sidebar.success("Idea submitted successfully!")
+            st.sidebar.success("Merci für die tolle Geschenkidee!")
         else:
-            st.sidebar.error("Please enter an idea before submitting.")
+            st.sidebar.error("Bitte gib eine Geschenkidee ein, bevor du auf «Hinzufügen» klickst.")
 
     # Sidebar - Delete Idea
     st.sidebar.header("Geschenkidee löschen")
     if not ideas_df.empty:
-        delete_index = st.sidebar.selectbox("Idee auswählen", ideas_df.index, key="delete_index")
-        if st.sidebar.button("Löschen", key="delete_button"):
+        # Create a list of options displaying the index and first 15 characters of each idea
+        delete_options = [f"{idx} — {row['Geschenkidee'][:15]} ..." for idx, row in ideas_df.iterrows()]
+        
+        # Use the formatted options in the dropdown and map the selected option back to the original index
+        selected_option = st.sidebar.selectbox("Select idea to delete", delete_options, key="delete_index")
+        delete_index = int(selected_option.split(" — ")[0])  # Extract the index number from the selected option
+    
+        if st.sidebar.button("Weg damit", key="delete_button"):
             ideas_df = ideas_df.drop(delete_index).reset_index(drop=True)
             save_ideas(ideas_df)
-            st.sidebar.success("Idea deleted successfully!")
+            st.sidebar.success("Ok, Geschenkidee gelöscht!")
     else:
-        st.sidebar.write("No ideas to delete.")
+        st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
 
     # Display all submitted ideas in the main section
-    st.header("Geschenkideen")
-    st.dataframe(ideas_df)
+    st.header("Alle Geschenkideen")
+
+    popover = st.popover("Filter nach")
+    filter_sa = popover.checkbox("Sa", True)
+    filter_su = popover.checkbox("Su", True)
+    filter_tho = popover.checkbox("Tho", True)
+
+    filter_type = []
+
+    if filter_sa:
+        filter_type.append('Sa')
+    if filter_su:
+        filter_type.append('Su')
+    if filter_tho:
+        filter_type.append('Tho')
+
+    ideas_df_filtered = ideas_df[ideas_df['Beschenkte'].isin(filter_type)]
+    
+    st.dataframe(
+        ideas_df_filtered,
+        column_config={
+            "Link": st.column_config.LinkColumn(),
+            "Datum": st.column_config.TextColumn("Hinzugefügt am"),
+        }
+    )
