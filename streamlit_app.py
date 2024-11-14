@@ -90,14 +90,13 @@ else:
     st.image("assets/xmas.png", width=300)
     st.header("Alle Geschenkideen")
 
-    popover = st.popover("Filtern")
-    selected_name = popover.selectbox("Hier auswählen", ["alle"] + names)
+    selected_names = st.pills("Filtern", names, label_visibility="collapsed", selection_mode="multi")
 
-    if selected_name == "alle":
-        ideas_df_filtered = ideas_df
+    if selected_names:
+        ideas_df_filtered = ideas_df[ideas_df['Beschenkte'].isin(selected_names)]
     else:
-        ideas_df_filtered = ideas_df[ideas_df['Beschenkte'] == selected_name]
-
+        ideas_df_filtered = ideas_df
+    
     st.dataframe(
         ideas_df_filtered,
         column_config={
