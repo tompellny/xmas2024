@@ -87,6 +87,7 @@ else:
         st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
 
     # Display all submitted ideas in the main section
+    st.image("assets/xmas.png", width=300)
     st.header("Alle Geschenkideen")
 
     popover = st.popover("Filter nach")
