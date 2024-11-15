@@ -20,9 +20,13 @@ def authenticate(password):
 
 # Display the password input and authenticate if not logged in
 if not st.session_state.logged_in:
-    password = st.text_input("Bitte Passwort eingeben:", type="password")
-    if st.button("Lass mich rein"):
-        authenticate(password)
+    col1, col2, col3 = st.columns([2, 1, 2])
+    col1.write("")
+    with col2:
+        password = st.text_input("Bitte Passwort eingeben:", type="password")
+        if st.button("Lass mich rein"):
+            authenticate(password)
+    col3.write("")
 
 else:
     # Set CSV file path
@@ -72,6 +76,8 @@ else:
             st.sidebar.error("Bitte gib eine Geschenkidee ein, bevor du auf «Hinzufügen» klickst.")
 
     # Sidebar - Delete Idea
+    st.sidebar.write("")
+    st.sidebar.write("")  
     st.sidebar.header("Geschenkidee löschen")
     if not ideas_df.empty:
         # Create a list of options displaying the index and first 15 characters of each idea
@@ -81,7 +87,7 @@ else:
         selected_option = st.sidebar.selectbox("Zu löschende Geschenkidee wählen:", delete_options, key="delete_index")
         delete_index = int(selected_option.split(" — ")[0])  # Extract the index number from the selected option
     
-        if st.sidebar.button("Weg damit", key="delete_button"):
+        if st.sidebar.button("Idee löschen", key="delete_button"):
             ideas_df = ideas_df.drop(delete_index).reset_index(drop=True)
             save_ideas(ideas_df)
             st.sidebar.success("Ok, Geschenkidee gelöscht!")
@@ -89,8 +95,10 @@ else:
         st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
 
     # Display all submitted ideas in the main section
-    st.image("assets/xmas.png", width=300)
-    st.header("Alle Geschenkideen")
+    st.header("Weihnachtsideen 2024")
+    st.image("assets/xmas-banner.png", width=350)
+    st.write("")
+    st.subheader("Unsere Geschenkideen", divider="red")
 
     selected_names = st.pills("Filtern", names, label_visibility="collapsed", selection_mode="multi")
 
@@ -101,6 +109,7 @@ else:
     
     st.dataframe(
         ideas_df_filtered,
+        use_container_width=True,
         column_config={
             "Link": st.column_config.LinkColumn(),
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
@@ -108,13 +117,14 @@ else:
     )
 
     # ---------------- SHOW CHART--------------
+    st.write("")
     st.subheader("Leader Board", divider="red")
     # Group the data by Name and count the number of ideas
-    ideas_per_name = ideas_df.groupby("Beschenkte").size().reset_index(name="Count")
+    ideas_per_name = ideas_df.groupby("Beschenkte").size().reset_index(name="Geschenkideen")
 
     # Create an Altair bar chart
-    chart = alt.Chart(ideas_per_name).mark_bar().encode(
-        x=alt.X("Beschenkte", title="Beschenkte"),
+    chart = alt.Chart(ideas_per_name).mark_bar(color="white").encode(
+        x=alt.X("Beschenkte", title=""),
         y=alt.Y("Geschenkideen", title="Geschenkideen"),
         tooltip=["Beschenkte", "Geschenkideen"]
     ).properties(
@@ -124,4 +134,8 @@ else:
     )
 
     # Display the chart
-    st.altair_chart(chart, use_container_width=True)
+    col1, col2, col3 = st.columns([2, 2, 2])
+    with col1:
+        st.altair_chart(chart, use_container_width=True)
+    col2.write("")
+    col3.write("")
