@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import os
+import altair as alt
 
-# Define your password
-#PASSWORD = st.secrets['sheets']['GS_ACTION_ITEMS']
+# ---------------- SETTINGS -------------------------------
+st.set_page_config(page_title="Weihnachten 2024", layout="wide")
 
 # Check if the user is already logged in
 if 'logged_in' not in st.session_state:
@@ -34,6 +35,7 @@ else:
         else:
             ideas_df = pd.DataFrame(columns=["Beschenkte", "Geschenkidee", "Link", "Datum", "Favorit"])
             ideas_df.to_csv(CSV_PATH, sep="|", index=False)
+
             return ideas_df
 
     # Save ideas to CSV with pipe separator
@@ -104,3 +106,22 @@ else:
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
         }
     )
+
+    # ---------------- SHOW CHART--------------
+    st.subheader("Leader Board", divider="red")
+    # Group the data by Name and count the number of ideas
+    ideas_per_name = ideas_df.groupby("Beschenkte").size().reset_index(name="Count")
+
+    # Create an Altair bar chart
+    chart = alt.Chart(ideas_per_name).mark_bar().encode(
+        x=alt.X("Beschenkte", title="Beschenkte"),
+        y=alt.Y("Geschenkideen", title="Geschenkideen"),
+        tooltip=["Beschenkte", "Geschenkideen"]
+    ).properties(
+        title="Leader Board der Geschenkideen",
+        width=600,
+        height=400
+    )
+
+    # Display the chart
+    st.altair_chart(chart, use_container_width=True)
