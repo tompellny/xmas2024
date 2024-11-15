@@ -12,7 +12,7 @@ if 'logged_in' not in st.session_state:
 
 # Authentication function
 def authenticate(password):
-    if password == st.secrets['sheets']['GS_ACTION_ITEMS']:
+    if password == st.secrets['secrets']['PASSWORD']:
         st.session_state.logged_in = True
     else:
         st.error("Hoppla, Passwort falsch. Ab hier geht's für dich nicht weiter.")
