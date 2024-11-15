@@ -4,7 +4,7 @@ from datetime import date
 import os
 
 # Define your password
-PASSWORD = "lassmichrein"
+#PASSWORD = st.secrets['sheets']['GS_ACTION_ITEMS']
 
 # Check if the user is already logged in
 if 'logged_in' not in st.session_state:
@@ -12,7 +12,7 @@ if 'logged_in' not in st.session_state:
 
 # Authentication function
 def authenticate(password):
-    if password == PASSWORD:
+    if password == st.secrets['sheets']['GS_ACTION_ITEMS']:
         st.session_state.logged_in = True
     else:
         st.error("Hoppla, Passwort falsch. Ab hier geht's für dich nicht weiter.")
