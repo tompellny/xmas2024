@@ -48,10 +48,10 @@ else:
 
     # Dropdown for names
     names = ["Alma", "Antonia", "Elva", "Eva",  "Lotte", "Marla", "Ol", "Sabine", "Sandra", "Smilla", "Sophia", "Susanne", "Tho"]
-    selected_name = st.sidebar.selectbox("Also wenn ich ... wäre,", names)
+    selected_name = st.sidebar.selectbox("Wenn ich ... wäre", names)
 
     # Text input for the idea
-    idea_text = st.sidebar.text_area("dann würde ich mir ... wünschen:")
+    idea_text = st.sidebar.text_area("würde ich mir ... wünschen:")
     idea_url = st.sidebar.text_input("Link:")
 
     # Submit button
@@ -76,7 +76,7 @@ else:
         delete_options = [f"{idx} — {row['Geschenkidee'][:15]} ..." for idx, row in ideas_df.iterrows()]
         
         # Use the formatted options in the dropdown and map the selected option back to the original index
-        selected_option = st.sidebar.selectbox("Select idea to delete", delete_options, key="delete_index")
+        selected_option = st.sidebar.selectbox("Zu löschende Geschenkidee wählen:", delete_options, key="delete_index")
         delete_index = int(selected_option.split(" — ")[0])  # Extract the index number from the selected option
     
         if st.sidebar.button("Weg damit", key="delete_button"):
