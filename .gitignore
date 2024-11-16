@@ -1,6 +1,6 @@
 # Xmas 2024 specific
 .streamlit/secrets.toml
-assets/ideas.csv
+#assets/ideas.csv
 /assets/backup/
 
 # Byte-compiled / optimized / DLL files
