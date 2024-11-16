@@ -23,5 +23,6 @@ The app requires an initial password. The password is stored in the secrets.toml
    ```
    [secrets]
    ```
+   ```
    PASSWORD = "your password"
    ```
