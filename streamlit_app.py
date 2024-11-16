@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import date
+from datetime import datetime
 import os
 import altair as alt
 
@@ -32,7 +33,7 @@ if not st.session_state.logged_in:
     col3.write("")
 
 
-# ---------------- CSV LAOD AND SAVE ----------------------
+# ---------------- CSV LOAD AND SAVE ----------------------
 else:
     # Set CSV file path
     CSV_PATH = "assets/ideas.csv"
@@ -101,7 +102,7 @@ else:
         st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
 
 
-# ---------------- SHOW IDEAS ---------------------------
+    # ---------------- SHOW IDEAS ---------------------------
     # Display all submitted ideas in the main section
     st.header("Weihnachtsideen 2024")
     st.image("assets/xmas-banner.png", width=350)
@@ -123,6 +124,23 @@ else:
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
         }
     )
+
+    # ---------------- DOWNLOAD BUTTON ---------------------------
+    # Read the CSV file (if you want to display it or check its existence)
+    # Generate a timestamp for the filename
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    try:
+        with open("assets/ideas.csv", "r", encoding="utf-8") as file:
+            csv_data = file.read()  # Read the raw file content
+            st.download_button(
+                label="Download Ideen",
+                data=csv_data.encode("utf-8"),  # Ensure proper encoding for download
+                file_name=f"ideas_{timestamp}.csv",  # Add timestamp to the filename
+                mime="text/csv"
+            )
+    except FileNotFoundError:
+        st.error("Hoppla, habe keine Daten zum Download gefunden.")
+
 
     # ---------------- SHOW CHART--------------
     st.write("")
