@@ -1,4 +1,6 @@
+# Xmas 2024 specific
 .streamlit/secrets.toml
+assets/ideas.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

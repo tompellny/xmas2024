@@ -7,6 +7,8 @@ import altair as alt
 # ---------------- SETTINGS -------------------------------
 st.set_page_config(page_title="Weihnachten 2024", layout="wide")
 
+
+# ---------------- PASSWORD CHECK -------------------------
 # Check if the user is already logged in
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
@@ -15,6 +17,7 @@ if 'logged_in' not in st.session_state:
 def authenticate(password):
     if password == st.secrets['secrets']['PASSWORD']:
         st.session_state.logged_in = True
+        st.rerun()  # Force rerun to apply the new state
     else:
         st.error("Hoppla, Passwort falsch. Ab hier geht's für dich nicht weiter.")
 
@@ -28,6 +31,8 @@ if not st.session_state.logged_in:
             authenticate(password)
     col3.write("")
 
+
+# ---------------- CSV LAOD AND SAVE ----------------------
 else:
     # Set CSV file path
     CSV_PATH = "assets/ideas.csv"
@@ -49,6 +54,7 @@ else:
     # Load existing ideas
     ideas_df = load_ideas()
 
+# ---------------- SIDEBAR TO ADD/DELETE IDEAS ------------------------
     # Sidebar for idea entry form
     st.sidebar.header("Geschenkidee hinzufügen")
 
@@ -94,6 +100,8 @@ else:
     else:
         st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
 
+
+# ---------------- SHOW IDEAS ---------------------------
     # Display all submitted ideas in the main section
     st.header("Weihnachtsideen 2024")
     st.image("assets/xmas-banner.png", width=350)
@@ -128,7 +136,7 @@ else:
         y=alt.Y("Geschenkideen", title="Geschenkideen"),
         tooltip=["Beschenkte", "Geschenkideen"]
     ).properties(
-        title="Leader Board der Geschenkideen",
+        title="Für wen haben wir am meisten Geschenkideen?",
         width=600,
         height=400
     )

@@ -1,8 +1,4 @@
-# 🎈 Blank app template
-
-A simple Streamlit app template for you to modify!
-
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+A simple app to collect gift ideas.
 
 ### How to run it on your own machine
 
@@ -16,4 +12,17 @@ A simple Streamlit app template for you to modify!
 
    ```
    $ streamlit run streamlit_app.py
+   ```
+
+3. CSV with ideas
+Gift ideas are saved to a CSV. The CSV is not pushed to the repo and included in .gitignore
+   ```
+   assets/ideas.csv
+   ```
+
+4. Password
+The app requires an initial password. The password is stored in the secrets.toml file and needs to be added to the Streamlit's "App settings | Secrets".
+   ```
+[secrets]
+PASSWORD = "your password"
    ```
