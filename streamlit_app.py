@@ -7,7 +7,7 @@ import altair as alt
 from streamlit_gsheets import GSheetsConnection
 
 # ---------------- SETTINGS -------------------------------
-st.set_page_config(page_title="Weihnachten 2024", layout="wide")
+st.set_page_config(page_title="Geschenkideen 2024", page_icon=":material/featured_seasonal_and_gifts:", layout="wide")
 
 
 # ---------------- PASSWORD CHECK -------------------------
@@ -46,6 +46,8 @@ else:
         st.stop()
 
     ideas_df = ideas_df.dropna(how="all")
+    ideas_df = ideas_df.sort_index(ascending=False)
+
 
 # ---------------- SIDEBAR TO ADD/DELETE IDEAS ------------------------
     # Sidebar for idea entry form
@@ -101,6 +103,7 @@ else:
     st.image("assets/xmas-banner.png", width=400)
     st.subheader("Unsere Geschenkideen", divider="red")
 
+    st.metric("Geschenkideen", ideas_df['Geschenkidee'].count())
     selected_names = st.pills("Filtern", names, label_visibility="collapsed", selection_mode="multi")
 
     if selected_names:
@@ -108,17 +111,30 @@ else:
     else:
         ideas_df_filtered = ideas_df
     
+    # ---------------- IDEAS LIKEN ---------------------------
+    # Generate pills dynamically
+    #pill_labels = [f"ID {index}" for index in ideas_df_filtered.index]
+    #liked_pills = st.pills("Geschenkideen :thumbs_up:", pill_labels, label_visibility="visible", selection_mode="multi")  # Removed 'label' argument
+
+    # Update the "Likes" column in the DataFrame
+    #if liked_pills:
+        #liked_indices = [int(label.split(" ")[1]) for label in liked_pills]  # Extract the indices from pill labels
+        #ideas_df_filtered["Likes"] = ideas_df_filtered.index.isin(liked_indices).astype(int)
+
     st.dataframe(
         ideas_df_filtered,
         use_container_width=True,
         column_config={
-            "Link": st.column_config.LinkColumn(),
+            "_index": st.column_config.TextColumn("ID"),
+            "Beschenkte": st.column_config.TextColumn("Beschenkte(r)"),
+            "Geschenkidee": st.column_config.TextColumn("Geschenkidee"),
+            "Link": st.column_config.LinkColumn("Link"), # Make link clickable
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
-        },
-        height=500,
+            #"Likes": st.column_config.NumberColumn("Likes"),
+            },
+        #height=500,
     )
 
-    
     # ---------------- SHOW CHART--------------
     st.write("")
     st.subheader("Leader Board", divider="red")
@@ -133,7 +149,7 @@ else:
     ).properties(
         title="Für wen haben wir am meisten Geschenkideen?",
         width=600,
-        height=400
+        height=400,
     )
 
     # Display the chart
