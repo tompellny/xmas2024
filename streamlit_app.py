@@ -53,11 +53,11 @@ else:
 
     # Dropdown for names
     names = ["Alma", "Antonia", "Elva", "Eva",  "Lotte", "Marla", "Ol", "Sabine", "Sandra", "Smilla", "Sophia", "Susanne", "Tho"]
-    selected_name = st.sidebar.selectbox("Wenn ich ... wäre", names)
+    selected_name = st.sidebar.selectbox("Wenn ich ... wäre", names, index=None, placeholder="Beschenkte(n) wählen...")
 
     # Text input for the idea
     idea_text = st.sidebar.text_area("würde ich mir ... wünschen:")
-    idea_url = st.sidebar.text_input("Link:")
+    idea_url = st.sidebar.text_input("Link (optional):")
 
     # Submit button
     if st.sidebar.button("Idee hinzufügen"):
@@ -81,7 +81,7 @@ else:
     st.sidebar.header("Geschenkidee löschen")
     if not ideas_df.empty:
         # Create a list of options displaying the index and first 15 characters of each idea
-        delete_options = [f"{idx} — {row['Geschenkidee'][:15]} ..." for idx, row in ideas_df.iterrows()]
+        delete_options = [f"{idx} — {row['Geschenkidee'][:20]} ..." for idx, row in ideas_df.iterrows()]
         
         # Use the formatted options in the dropdown and map the selected option back to the original index
         selected_option = st.sidebar.selectbox("Zu löschende Geschenkidee wählen:", delete_options, key="delete_index")
@@ -97,9 +97,8 @@ else:
 
     # ---------------- SHOW IDEAS ---------------------------
     # Display all submitted ideas in the main section
-    st.header("Weihnachtsideen 2024")
-    st.image("assets/xmas-banner.png", width=350)
-    st.write("")
+    #st.subheader("Weihnachtsgeschenkideen 2024")
+    st.image("assets/xmas-banner.png", width=400)
     st.subheader("Unsere Geschenkideen", divider="red")
 
     selected_names = st.pills("Filtern", names, label_visibility="collapsed", selection_mode="multi")
@@ -115,7 +114,8 @@ else:
         column_config={
             "Link": st.column_config.LinkColumn(),
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
-        }
+        },
+        height=500,
     )
 
     
