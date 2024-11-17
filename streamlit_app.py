@@ -46,7 +46,7 @@ else:
         st.stop()
 
     ideas_df = ideas_df.dropna(how="all")
-    ideas_df = ideas_df.sort_index(ascending=False)
+    ideas_df = ideas_df.sort_values(by="Datum", ascending=False)
 
 
 # ---------------- SIDEBAR TO ADD/DELETE IDEAS ------------------------
@@ -71,6 +71,7 @@ else:
                                     "Datum": date.today().strftime("%Y-%m-%d"),
                                     }])
             ideas_df = pd.concat([ideas_df, new_idea], ignore_index=True)
+            ideas_df = ideas_df.sort_values(by="Datum", ascending=False)
             # Update the Google Sheet with the merged data
             conn.update(worksheet=st.secrets['sheets']['GS_IDEAS'], data=ideas_df)
             st.sidebar.success("Merci für die tolle Geschenkidee!")
@@ -81,16 +82,32 @@ else:
     st.sidebar.write("")
     st.sidebar.write("")  
     st.sidebar.header("Geschenkidee löschen")
+
     if not ideas_df.empty:
-        # Create a list of options displaying the index and first 15 characters of each idea
-        delete_options = [f"{idx} — {row['Geschenkidee'][:20]} ..." for idx, row in ideas_df.iterrows()]
+        # Create a list of options displaying "Beschenkte" and truncated "Geschenkidee"
+        delete_options = [f"{row['Beschenkte']} — {row['Geschenkidee'][:20]}..." for _, row in ideas_df.iterrows()]
         
-        # Use the formatted options in the dropdown and map the selected option back to the original index
-        selected_option = st.sidebar.selectbox("Zu löschende Geschenkidee wählen:", delete_options, key="delete_index")
-        delete_index = int(selected_option.split(" — ")[0])  # Extract the index number from the selected option
-    
+        # Persist the selected option using session state
+        if "delete_selected" not in st.session_state:
+            st.session_state.delete_selected = delete_options[0]  # Default to the first option
+
+        # Use the formatted options in the dropdown
+        selected_option = st.sidebar.selectbox(
+            "Zu löschende Geschenkidee wählen:",
+            delete_options,
+            key="delete_index",
+            index=delete_options.index(st.session_state.delete_selected)
+        )
+        
+        # Update session state when the user selects a new option
+        st.session_state.delete_selected = selected_option
+
+        # Map the selected option back to the DataFrame
+        selected_row_index = delete_options.index(selected_option)
+        
         if st.sidebar.button("Idee löschen", key="delete_button"):
-            ideas_df = ideas_df.drop(delete_index).reset_index(drop=True)
+            # Remove the selected row
+            ideas_df = ideas_df.drop(selected_row_index).reset_index(drop=True)
             conn.update(worksheet=st.secrets['sheets']['GS_IDEAS'], data=ideas_df)
             st.sidebar.success("Ok, Geschenkidee gelöscht!")
     else:
@@ -122,16 +139,17 @@ else:
         #ideas_df_filtered["Likes"] = ideas_df_filtered.index.isin(liked_indices).astype(int)
 
     st.dataframe(
-        ideas_df_filtered,
+        ideas_df_filtered[["Beschenkte", "Geschenkidee", "Link", "Datum"]],  # Select only desired columns
         use_container_width=True,
         column_config={
-            "_index": st.column_config.TextColumn("ID"),
+            #"_index": st.column_config.TextColumn("ID"),
             "Beschenkte": st.column_config.TextColumn("Beschenkte(r)"),
             "Geschenkidee": st.column_config.TextColumn("Geschenkidee"),
             "Link": st.column_config.LinkColumn("Link"), # Make link clickable
             "Datum": st.column_config.TextColumn("Hinzugefügt am"),
             #"Likes": st.column_config.NumberColumn("Likes"),
             },
+        hide_index=True,
         #height=500,
     )
 
