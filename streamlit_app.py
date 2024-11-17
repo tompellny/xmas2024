@@ -4,6 +4,7 @@ from datetime import date
 from datetime import datetime
 import os
 import altair as alt
+from streamlit_gsheets import GSheetsConnection
 
 # ---------------- SETTINGS -------------------------------
 st.set_page_config(page_title="Weihnachten 2024", layout="wide")
@@ -33,27 +34,18 @@ if not st.session_state.logged_in:
     col3.write("")
 
 
-# ---------------- CSV LOAD AND SAVE ----------------------
+# ---------------- LOGIN SUCCESS ----------------------
 else:
-    # Set CSV file path
-    CSV_PATH = "assets/ideas.csv"
+    # ---------------- GSHEET CONNECTION ----------------------
+    # Create a GSheets connection object
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    try:
+        ideas_df = conn.read(worksheet=st.secrets['sheets']['GS_IDEAS'], usecols=list(range(4)), ttl=5)
+    except Exception as e:
+        st.error(f"Hoppla, Fehler beim Laden der Google Sheets Daten: {e}")
+        st.stop()
 
-    # Load ideas from CSV with pipe separator, or create an empty DataFrame if it doesn't exist
-    def load_ideas():
-        if os.path.exists(CSV_PATH):
-            return pd.read_csv(CSV_PATH, sep="|")
-        else:
-            ideas_df = pd.DataFrame(columns=["Beschenkte", "Geschenkidee", "Link", "Datum", "Favorit"])
-            ideas_df.to_csv(CSV_PATH, sep="|", index=False)
-
-            return ideas_df
-
-    # Save ideas to CSV with pipe separator
-    def save_ideas(ideas_df):
-        ideas_df.to_csv(CSV_PATH, sep="|", index=False)
-
-    # Load existing ideas
-    ideas_df = load_ideas()
+    ideas_df = ideas_df.dropna(how="all")
 
 # ---------------- SIDEBAR TO ADD/DELETE IDEAS ------------------------
     # Sidebar for idea entry form
@@ -70,14 +62,15 @@ else:
     # Submit button
     if st.sidebar.button("Idee hinzufügen"):
         if idea_text.strip() != "":
-            new_idea = {
-                "Beschenkte": selected_name,
-                "Geschenkidee": idea_text,
-                "Link": idea_url,
-                "Datum": date.today().strftime("%Y-%m-%d")
-            }
-            ideas_df = pd.concat([ideas_df, pd.DataFrame([new_idea])], ignore_index=True)
-            save_ideas(ideas_df)
+            new_idea = pd.DataFrame([{
+                                    "Beschenkte": selected_name,
+                                    "Geschenkidee": idea_text,
+                                    "Link": idea_url,
+                                    "Datum": date.today().strftime("%Y-%m-%d"),
+                                    }])
+            ideas_df = pd.concat([ideas_df, new_idea], ignore_index=True)
+            # Update the Google Sheet with the merged data
+            conn.update(worksheet=st.secrets['sheets']['GS_IDEAS'], data=ideas_df)
             st.sidebar.success("Merci für die tolle Geschenkidee!")
         else:
             st.sidebar.error("Bitte gib eine Geschenkidee ein, bevor du auf «Hinzufügen» klickst.")
@@ -96,7 +89,7 @@ else:
     
         if st.sidebar.button("Idee löschen", key="delete_button"):
             ideas_df = ideas_df.drop(delete_index).reset_index(drop=True)
-            save_ideas(ideas_df)
+            conn.update(worksheet=st.secrets['sheets']['GS_IDEAS'], data=ideas_df)
             st.sidebar.success("Ok, Geschenkidee gelöscht!")
     else:
         st.sidebar.write("Es gibt noch keine Geschenkideen zu löschen.")
@@ -125,23 +118,7 @@ else:
         }
     )
 
-    # ---------------- DOWNLOAD BUTTON ---------------------------
-    # Read the CSV file (if you want to display it or check its existence)
-    # Generate a timestamp for the filename
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    try:
-        with open("assets/ideas.csv", "r", encoding="utf-8") as file:
-            csv_data = file.read()  # Read the raw file content
-            st.download_button(
-                label="Download Ideen",
-                data=csv_data.encode("utf-8"),  # Ensure proper encoding for download
-                file_name=f"ideas_{timestamp}.csv",  # Add timestamp to the filename
-                mime="text/csv"
-            )
-    except FileNotFoundError:
-        st.error("Hoppla, habe keine Daten zum Download gefunden.")
-
-
+    
     # ---------------- SHOW CHART--------------
     st.write("")
     st.subheader("Leader Board", divider="red")
@@ -151,7 +128,7 @@ else:
     # Create an Altair bar chart
     chart = alt.Chart(ideas_per_name).mark_bar(color="white").encode(
         x=alt.X("Beschenkte", title=""),
-        y=alt.Y("Geschenkideen", title="Geschenkideen"),
+        y=alt.Y("Geschenkideen", title="Geschenkideen", axis=alt.Axis(format='d')),  # Force integer format
         tooltip=["Beschenkte", "Geschenkideen"]
     ).properties(
         title="Für wen haben wir am meisten Geschenkideen?",
