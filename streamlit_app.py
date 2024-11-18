@@ -162,7 +162,7 @@ else:
     # Create an Altair bar chart
     chart = alt.Chart(ideas_per_name).mark_bar(color="white").encode(
         x=alt.X("Beschenkte", title=""),
-        y=alt.Y("Geschenkideen", title="Geschenkideen", axis=alt.Axis(format='d')),  # Force integer format
+        y=alt.Y("Geschenkideen", title="", axis=alt.Axis(format='d')),  # Force integer format
         tooltip=["Beschenkte", "Geschenkideen"]
     ).properties(
         title="Für wen haben wir am meisten Geschenkideen?",
